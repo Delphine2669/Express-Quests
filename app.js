@@ -13,18 +13,23 @@ const welcome = (req, res) => {
 app.get("/", welcome);
 
 const movieHandlers = require("./movieHandlers");
+const { validateMovie, validateUser } = require("./validators.js");
 
-app.get("/api/movies", movieHandlers.getMovies);
+app.get("/api/movies",movieHandlers.getMovies);
 app.get("/api/movies/:id", movieHandlers.getMovieById);
 app.get("/api/users", movieHandlers.getUsers);
-app.get("/api/users/:id", movieHandlers.getUserById)
+app.get("/api/users/:id" ,movieHandlers.getUserById)
 
-app.post("/api/movies",movieHandlers.postMovie);
-app.post("/api/users",movieHandlers.postUsers);
-app.put("/api/movies/:id", movieHandlers.updateMovie);
-app.put("/api/users/:id", movieHandlers.updateUser);
+      
+app.put("/api/movies/:id",validateMovie, movieHandlers.updateMovie);
+app.put("/api/users/:id", validateUser,movieHandlers.updateUser);
 app.delete("/api/movies/:id", movieHandlers.deleteMovie);
 app.delete("/api/users/:id", movieHandlers.deleteUser);
+
+
+app.post("/api/movies", validateMovie, movieHandlers.postMovie);
+app.post("/api/users",validateUser, movieHandlers.postUsers);
+
 app.listen(port, (err) => {
   if (err) {
     console.error("Something bad happened");
@@ -32,3 +37,6 @@ app.listen(port, (err) => {
     console.log(`Server is listening on ${port}`);
   }
 });
+
+
+  

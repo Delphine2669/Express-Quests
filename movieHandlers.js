@@ -41,10 +41,11 @@ const getMovies = (req, res) => {
 
 
 const getMovieById = (req, res) => {
+  const id = parseInt(req.params.id);
   const movie = movies.find((movie) =>movie.id === id);
 
   
-  const id = parseInt(req.params.id);
+
   database
   .query("select * from movies where id= ?", [id])
   .then(([movies])=>{
@@ -162,7 +163,7 @@ const getUserById = (req, res) => {
   
  database
    .query(
-     "UPDATE movies SET firstname = ?, lastname = ?, email = ?, city = ?, language = ? WHERE id = ?",
+     "UPDATE users SET firstname = ?, lastname = ?, email = ?, city = ?, language = ? WHERE id = ?",
        [firstname, lastname, email, city, language, id]
      )
      .then(([result]) => {
@@ -201,7 +202,7 @@ const deleteUser = (req,res)=>{
   database
   .query("DELETE from users where id=?",[id])
   .then(([result])=>{
-    if (result.affectedRows === -0){
+    if (result.affectedRows === 0){
 res.status(404).send("Not Found");
     }else{res.sendStatus(204)}
   })
