@@ -1,3 +1,4 @@
+const { addListener } = require("nodemon");
 const database = require("./database")
 const movies = [
   {
@@ -27,9 +28,26 @@ const movies = [
 ];
 
 const getMovies = (req, res) => {
+
+  const sql = "select * from movies"
+  const sqlValues = []
+
+  if(req.query.color != null){
+    sql += "where color = ?";
+    sqlValues.push(req.query.color);
+
+  }
+if(req.query.max_duration != null){
+  sql += "and duration <= ?";
+  sqlValues.push(req.query.max_duration);}
+  else if(req.query.max_duration != null){
+    sql+="where duration <= ?";
+    sqlValues.push(req.query.duration);
+  }
+  
   database
-  .query("select * from movies")
-  .then((movies) => {
+  .query(sql, sqlValues)
+  .then(([movies]) => {
     res.json(movies);
   })
   .catch((err) => {
@@ -47,7 +65,7 @@ const getMovieById = (req, res) => {
   
 
   database
-  .query("select * from movies where id= ?", [id])
+  .query("select * from movies where id = ?", [id])
   .then(([movies])=>{
     if (movie != null) {
       res.json(movie);
@@ -86,10 +104,26 @@ const postMovie = (req, res) => {
 };
 
 const getUsers = (req, res) => { 
+  let sql = "select * from users";
+  const sqlValues = [];
+  if(req.query.language!= null){
+    if(req.query.city!=null){
+      sql+= " WHERE language = ? ";
+      sqlValues.push(req.query.language);
+     }
+    if(req.query.city != null){
+       sql += " and city = ? ";
+       sqlValues.push(req.query.city);
+      }
+      else if (req.query.city != null) {
+        sql += " where city = ? ";
+        sqlValues.push(req.query.city)
+       }
+}
   database
-  .query("select * from users")
+  .query(sql,sqlValues)
   .then(([users])=> {
-      res.status(200).json(users)
+      res.json(users);
     })
 
 .catch((err)=>
@@ -104,7 +138,7 @@ const getUserById = (req, res) => {
 
   const id = parseInt(req.params.id);
   database
-    .query("select * from users where id= ?", [id])
+    .query("select * from users where id = ?", [id])
     .then(([users])=>{
       if (users[0] != null) {
         res.json(users[0])}
@@ -182,7 +216,7 @@ const getUserById = (req, res) => {
 const deleteMovie = (req,res) => {
   const id= parseInt(req.params.id);
   database
-  .query("DELETE from movies where id = ?",[id])
+  .query("DELETE from movies where id = ? ",[id])
 .then(([result])=> {
   if (result.affectedRows === 0){
     res.status(404).send("Not Found");
