@@ -107,19 +107,18 @@ const getUsers = (req, res) => {
   let sql = "select * from users";
   const sqlValues = [];
   if(req.query.language!= null){
-    if(req.query.city!=null){
       sql+= " WHERE language = ? ";
       sqlValues.push(req.query.language);
      }
-    if(req.query.city != null){
-       sql += " and city = ? ";
-       sqlValues.push(req.query.city);
-      }
-      else if (req.query.city != null) {
-        sql += " where city = ? ";
-        sqlValues.push(req.query.city)
-       }
-}
+    else if(req.query.city != null && req.query.language!= null){
+       sql += " WHERE language ? AND city = ? ";
+       sqlValues.push(req.query.city, req.query.language);
+        }
+     else if (req.query.city != null){
+        sql += " WHERE city = ? ";
+          sqlValues.push(req.query.city)
+          
+    }
   database
   .query(sql,sqlValues)
   .then(([users])=> {
@@ -132,6 +131,7 @@ const getUsers = (req, res) => {
   res.status(500).send("Error retrieving data from database")
 })
 }
+
 
 ;
 const getUserById = (req, res) => {
@@ -257,4 +257,5 @@ module.exports = {
   updateUser,
   deleteMovie,
   deleteUser,
-};
+}
+
