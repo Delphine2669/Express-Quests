@@ -1,8 +1,9 @@
 const { addListener } = require("nodemon");
+const { hashPassword } = require("./auth");
 const database = require("./database");
 
 const getUsers = (req, res) => {
-  let sql = "select * from users";
+  let sql = "select id, firstname, lastname,email, city, language from users";
   const sqlValues = [];
   if (req.query.language != null) {
     sql += " WHERE language = ? ";
@@ -51,7 +52,10 @@ const updateUser = (req, res) => {
 const getUserById = (req, res) => {
   const id = parseInt(req.params.id);
   database
-    .query("select * from users where id = ?", [id])
+    .query(
+      "select id, firstname, lastname,email, city, language from users where id = ?",
+      [id]
+    )
     .then(([users]) => {
       if (users[0] != null) {
         res.json(users[0]);
@@ -65,6 +69,23 @@ const getUserById = (req, res) => {
       res.status(500).send("Error retrieving data from database");
     });
 };
+const getUserByEmailWithPasswordAndPassToNext = (req, res) => {
+  const { email } = req.body;
+  database
+    .query("select * from users where email = ?", [email])
+    .then(([users]) => {
+      if (users[0] != null) {
+        res.json(users[0]);
+      } else {
+        res.sendStatus(401);
+      }
+    })
+    .catch((err) => {
+      console.error(err);
+      res.status(500).send("Error retrieving data from database");
+    });
+};
+
 const postUsers = (req, res) => {
   const { firstname, lastname, email, city, language, hashedPassword } =
     req.body;
@@ -99,6 +120,7 @@ const deleteUser = (req, res) => {
     });
 };
 module.exports = {
+  getUserByEmailWithPasswordAndPassToNext,
   getUsers,
   getUserById,
   postUsers,
